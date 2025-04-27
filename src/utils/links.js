@@ -52,7 +52,7 @@ export async function findLinkByCode(shortCode) {
 export async function recordClick(linkId, request) {
   try {
     const clientInfo = getClientInfo(request);
-    const geoInfo = getGeoInfo(request);
+    const geoInfo = await getGeoInfo(request);
     
     const id = nanoid();
     

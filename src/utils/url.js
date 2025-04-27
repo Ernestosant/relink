@@ -65,14 +65,49 @@ export function getClientInfo(request) {
   };
 }
 
-// Attempt to get geolocation info from Cloudflare
-export function getGeoInfo(request) {
-  // When deployed on Cloudflare, this data will be available
-  const country = request.headers.get('cf-ipcountry') || '';
-  const city = '';  // Cloudflare doesn't provide city in free tier
-  
-  return {
-    country,
-    city
-  };
+// Get geolocation info from IP using a free service
+export async function getGeoInfo(request) {
+  try {
+    const ip = request.headers.get('x-forwarded-for') || 
+              request.headers.get('cf-connecting-ip') || 
+              '0.0.0.0';
+    
+    // Try Cloudflare headers first (only when deployed on Cloudflare)
+    const cfCountry = request.headers.get('cf-ipcountry');
+    if (cfCountry) {
+      return {
+        country: cfCountry,
+        city: ''  // Cloudflare free tier doesn't provide city
+      };
+    }
+    
+    // If not on Cloudflare or header not available, use a free API
+    // Note: In a production app, you might want to add rate limiting or caching
+    if (ip && ip !== '0.0.0.0') {
+      try {
+        const response = await fetch(`https://ipapi.co/${ip}/json/`);
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            country: data.country_name || data.country || '',
+            city: data.city || ''
+          };
+        }
+      } catch (apiError) {
+        console.error('Error fetching geolocation data:', apiError);
+      }
+    }
+    
+    // Default fallback
+    return {
+      country: '',
+      city: ''
+    };
+  } catch (error) {
+    console.error('Error in getGeoInfo:', error);
+    return {
+      country: '',
+      city: ''
+    };
+  }
 } 

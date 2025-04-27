@@ -1,75 +1,66 @@
-# ReLink - Acortador de URLs
+# ReLink - URL Shortener with Statistics
 
-ReLink es una plataforma similar a Bitly para acortar URLs, con capacidades de seguimiento de estadísticas y personalización de enlaces.
+ReLink is a simple URL shortener that stores link data and click statistics in CSV files.
 
-## Características
+## Features
 
-- Acorta enlaces largos en URLs más manejables
-- Personaliza la parte final del enlace acortado
-- Seguimiento de métricas de clics:
-  - Número total de clics
-  - País de origen
-  - Tipo de dispositivo
-  - Navegador utilizado
-  - Hora del clic
-- Interfaz moderna y fácil de usar
-- Base de datos SQLite para almacenamiento de datos
+- Shorten URLs with custom or random codes
+- Track click statistics:
+  - Total clicks
+  - Clicks by country
+  - Clicks by device
+  - Clicks by browser
+- CSV data storage without requiring a database
 
-## Tecnologías
+## How it Works
 
-- [Astro](https://astro.build/) - Framework web moderno
-- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
-- [SQLite](https://www.sqlite.org/) - Base de datos
-- [Drizzle ORM](https://orm.drizzle.team/) - ORM para la base de datos
-- [Cloudflare](https://www.cloudflare.com/) - Despliegue y hosting
+### Data Storage
 
-## Instalación
+All data is stored in CSV files located in the `data/` directory:
 
-1. Clona este repositorio
-```bash
-git clone https://github.com/tu-usuario/relink.git
-cd relink
-```
+- `links.csv`: Stores information about shortened links
+- `clicks.csv`: Stores click data with geolocation and device information
 
-2. Instala las dependencias
-```bash
-npm install
-```
+### Geolocation
 
-3. Ejecuta el proyecto en modo desarrollo
-```bash
-npm run dev
-```
+The system uses a free API service (ipapi.co) to determine the country and city of visitors based on their IP address. When deployed on Cloudflare, it will also utilize Cloudflare's country headers when available.
 
-4. Construye para producción
-```bash
-npm run build
-```
+## Development
 
-## Despliegue en Cloudflare
+### Prerequisites
 
-Este proyecto está configurado para ser desplegado en Cloudflare Pages:
+- Node.js 14 or higher
+- npm or yarn
 
-1. Crea un proyecto en Cloudflare Pages
-2. Configura el proyecto para usar:
-   - Framework: Astro
-   - Build command: npm run build
-   - Build output directory: dist
-3. Despliega tu proyecto
+### Installation
 
-## Estructura del Proyecto
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Run the development server:
+   ```
+   npm run dev
+   ```
 
-```
-relink/
-├── public/            # Archivos estáticos
-├── src/
-│   ├── components/    # Componentes de la UI
-│   ├── db/            # Configuración de la base de datos
-│   ├── layouts/       # Layouts de la aplicación
-│   ├── pages/         # Páginas y endpoints de la API
-│   └── utils/         # Funciones utilitarias
-└── astro.config.mjs   # Configuración de Astro
-```
+### Project Structure
+
+- `src/`
+  - `pages/`: Astro pages
+  - `components/`: UI components
+  - `utils/`: Utility functions
+    - `csv.js`: CSV data handling
+    - `links.js`: Link management functions
+    - `url.js`: URL and request processing utils
+  - `layouts/`: Page layouts
+  - `data/`: CSV data files (created automatically)
+
+## Deployment
+
+The application can be deployed on any platform that supports Astro, such as Vercel, Netlify, or Cloudflare Pages.
+
+When deployed on Cloudflare, the application will utilize Cloudflare's country headers for better geolocation accuracy.
 
 ## Licencia
 
