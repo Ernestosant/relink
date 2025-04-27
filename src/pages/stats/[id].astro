@@ -1,0 +1,122 @@
+---
+// <reference types="astro/client" />
+import Layout from '../../layouts/Layout.astro';
+import { getLinkStats, findLinkByCode } from '../../utils/links.js';
+import { findLinkById } from '../../utils/csv.js';
+
+// Get link ID from params
+const { id } = Astro.params;
+
+// Get link information
+const link = await findLinkById(id);
+
+// Redirect if link doesn't exist
+if (!link) {
+  return Astro.redirect('/stats');
+}
+
+// Get link statistics
+const stats = await getLinkStats(id);
+---
+
+<Layout title={`Estadísticas | ${link.shortCode} | ReLink`}>
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center mb-8">
+      <a href="/stats" class="text-indigo-600 hover:text-indigo-800 mr-4">
+        ← Volver
+      </a>
+      <h1 class="text-3xl font-bold text-indigo-800">Estadísticas de Enlace</h1>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+      <div class="p-6">
+        <h2 class="text-xl font-medium text-gray-800 mb-2">Información del Enlace</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Código corto</p>
+            <p class="text-lg font-medium text-indigo-600">
+              <a href={`/${link.shortCode}`} target="_blank" rel="noopener noreferrer">
+                {link.shortCode}
+              </a>
+            </p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500 mb-1">URL original</p>
+            <p class="text-lg break-all">{link.originalUrl}</p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Creado el</p>
+            <p class="text-lg">{new Date(link.createdAt).toLocaleString()}</p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Clics totales</p>
+            <p class="text-lg font-bold text-indigo-700">{stats?.totalClicks || 0}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {stats?.totalClicks > 0 && (
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Clics por país</h3>
+            
+            <div class="space-y-3">
+              {stats.clicksByCountry.map((item) => (
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-700">{item.country || 'Desconocido'}</span>
+                  <div class="flex items-center">
+                    <span class="text-indigo-600 font-medium mr-2">{item.count}</span>
+                    <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        class="bg-indigo-600 h-2.5 rounded-full" 
+                        style={`width: ${(item.count / stats.totalClicks * 100)}%`}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Clics por dispositivo</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              {stats.clicksByDevice.map((item) => (
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                  <p class="text-gray-700">{item.device || 'Desconocido'}</p>
+                  <p class="text-2xl font-bold text-indigo-600 mt-2">{item.count}</p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {Math.round(item.count / stats.totalClicks * 100)}%
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            <h3 class="text-lg font-medium text-gray-800 mb-4 mt-6">Clics por navegador</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              {stats.clicksByBrowser.map((item) => (
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                  <p class="text-gray-700">{item.browser || 'Desconocido'}</p>
+                  <p class="text-2xl font-bold text-indigo-600 mt-2">{item.count}</p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {Math.round(item.count / stats.totalClicks * 100)}%
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout> 

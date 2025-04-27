@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LinkShortener from '../components/LinkShortener.astro';
+---
+
+<Layout title="ReLink - Acortador de URLs con Estadísticas">
+  <section class="text-center py-10">
+    <h1 class="text-4xl font-bold text-indigo-800 mb-2">ReLink</h1>
+    <p class="text-lg text-gray-600 mb-8">Acorta tus URLs y obtén estadísticas detalladas de sus clics</p>
+    
+    <LinkShortener />
+  </section>
+  
+  <section class="mt-16 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-center text-indigo-700 mb-8">¿Por qué usar ReLink?</h2>
+    
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="text-indigo-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2 text-center">Enlaces Personalizados</h3>
+        <p class="text-gray-600 text-center">Crea URLs cortas y personalizadas para compartir fácilmente.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="text-indigo-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2 text-center">Estadísticas Detalladas</h3>
+        <p class="text-gray-600 text-center">Analiza quién, cuándo y desde dónde se hacen clic en tus enlaces.</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="text-indigo-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2 text-center">Rápido y Seguro</h3>
+        <p class="text-gray-600 text-center">Servicio optimizado y seguro para todos tus enlaces importantes.</p>
+      </div>
+    </div>
+  </section>
+</Layout> 

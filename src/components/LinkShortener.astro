@@ -1,0 +1,156 @@
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
+  <h2 class="text-2xl font-bold text-indigo-700 mb-6">Acorta tu enlace</h2>
+  
+  <form id="shortener-form" class="space-y-4">
+    <div>
+      <label for="original-url" class="block text-sm font-medium text-gray-700 mb-1">URL Original</label>
+      <input 
+        type="url" 
+        id="original-url" 
+        name="originalUrl" 
+        placeholder="https://ejemplo.com/mi-pagina-con-url-muy-larga-para-acortar" 
+        required
+        class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+    </div>
+    
+    <div>
+      <label for="custom-code" class="block text-sm font-medium text-gray-700 mb-1">
+        Código personalizado (opcional)
+      </label>
+      <div class="flex">
+        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+          relink/
+        </span>
+        <input 
+          type="text" 
+          id="custom-code" 
+          name="customCode" 
+          placeholder="mi-codigo" 
+          class="flex-1 p-3 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+      </div>
+      <p class="mt-1 text-sm text-gray-500">
+        Deja en blanco para generar un código aleatorio.
+      </p>
+    </div>
+    
+    <div>
+      <button 
+        type="submit"
+        class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"
+      >
+        Acortar URL
+      </button>
+    </div>
+  </form>
+  
+  <div id="result" class="mt-8 hidden">
+    <h3 class="text-lg font-medium text-gray-900 mb-2">¡Tu link ha sido acortado!</h3>
+    <div class="flex items-center bg-gray-50 p-4 rounded-md border border-gray-200">
+      <input 
+        type="text" 
+        id="short-url" 
+        readonly
+        class="w-full bg-transparent border-none focus:outline-none text-indigo-600 font-medium"
+      >
+      <button 
+        id="copy-btn"
+        class="ml-3 bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+      >
+        Copiar
+      </button>
+    </div>
+    <p class="mt-2 text-sm text-gray-500">
+      Comparte este enlace acortado. También podrás ver sus estadísticas.
+    </p>
+  </div>
+  
+  <div id="error" class="mt-6 hidden">
+    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+      <div class="flex">
+        <div class="ml-3">
+          <p class="text-sm text-red-700" id="error-message"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('shortener-form') as HTMLFormElement;
+    const resultDiv = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+    const errorMessage = document.getElementById('error-message');
+    const shortUrlInput = document.getElementById('short-url') as HTMLInputElement;
+    const copyBtn = document.getElementById('copy-btn');
+    
+    if (!form || !resultDiv || !errorDiv || !errorMessage || !shortUrlInput || !copyBtn) {
+      console.error('Failed to find required elements');
+      return;
+    }
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const originalUrl = formData.get('originalUrl');
+      const customCode = formData.get('customCode');
+      
+      // Reset UI
+      resultDiv.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      
+      try {
+        const response = await fetch('/api/shorten', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            originalUrl,
+            customCode: customCode || undefined
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok || data.error) {
+          throw new Error(data.error || 'Error al acortar la URL');
+        }
+        
+        // Show success and set short URL
+        const shortUrl = `${window.location.origin}/${data.shortCode}`;
+        shortUrlInput.value = shortUrl;
+        resultDiv.classList.remove('hidden');
+      } catch (error) {
+        // Show error message
+        if (error instanceof Error) {
+          errorMessage.textContent = error.message;
+        } else {
+          errorMessage.textContent = 'Error desconocido';
+        }
+        errorDiv.classList.remove('hidden');
+      }
+    });
+    
+    // Copy button functionality
+    copyBtn.addEventListener('click', () => {
+      shortUrlInput.select();
+      document.execCommand('copy');
+      
+      // Change copy button text temporarily
+      const originalText = copyBtn.textContent || 'Copiar';
+      copyBtn.textContent = '¡Copiado!';
+      copyBtn.classList.add('bg-green-100', 'text-green-700');
+      copyBtn.classList.remove('bg-indigo-100', 'text-indigo-700');
+      
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.classList.remove('bg-green-100', 'text-green-700');
+        copyBtn.classList.add('bg-indigo-100', 'text-indigo-700');
+      }, 2000);
+    });
+  });
+</script> 

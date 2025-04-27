@@ -1,0 +1,23 @@
+---
+import { findLinkByCode, recordClick } from '../utils/links.js';
+
+// Obtener el código corto desde los parámetros
+const { shortCode } = Astro.params;
+
+// Buscar el enlace en la base de datos
+const link = await findLinkByCode(shortCode);
+
+// Si no existe el enlace, redirigir a la página principal
+if (!link) {
+  return Astro.redirect('/');
+}
+
+// Registrar el clic
+await recordClick(link.id, Astro.request);
+
+// Redirigir al enlace original
+return Astro.redirect(link.originalUrl);
+---
+
+<!-- Esta página nunca se renderiza porque siempre redirige -->
+<div></div> 
