@@ -1,8 +1,10 @@
+---
 import Layout from '../layouts/Layout.astro';
 import { getAllLinks } from '../utils/links.js';
 
 // Obtener todos los enlaces
 const links = await getAllLinks();
+---
 
 <Layout title="Estadísticas | ReLink">
   <div class="max-w-6xl mx-auto">
