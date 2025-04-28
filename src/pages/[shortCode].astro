@@ -15,8 +15,14 @@ if (!link) {
 // Registrar el clic
 await recordClick(link.id, Astro.request);
 
-// Redirigir al enlace original
-return Astro.redirect(link.originalUrl);
+// Asegurar que la URL use HTTPS
+let redirectUrl = link.originalUrl;
+if (redirectUrl.startsWith('http:')) {
+  redirectUrl = redirectUrl.replace('http:', 'https:');
+}
+
+// Redirigir al enlace original (asegurando HTTPS)
+return Astro.redirect(redirectUrl);
 ---
 
 <!-- Esta página nunca se renderiza porque siempre redirige -->

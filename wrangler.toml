@@ -1,0 +1,15 @@
+name = "relink"
+compatibility_date = "2025-04-28"
+main = "dist/_worker.js"
+
+# Configurar los límites y compatibilidad
+compatibility_flags = ["nodejs_compat"]
+
+# Configurar los assets estáticos
+[site]
+bucket = "./.output/public"
+node_compatibility = true
+
+[env.production]
+name = "relink"
+route = "" 
