@@ -1,34 +1,10 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { nanoid } from 'nanoid';
 
-// Get the directory name using import.meta.url
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Variables para almacenamiento en memoria durante la ejecución
+let inMemoryLinks = [];
+let inMemoryClicks = [];
 
-// Define paths to CSV files
-const dataFolder = path.join(__dirname, '..', '..', 'data');
-const linksFilePath = path.join(dataFolder, 'links.csv');
-const clicksFilePath = path.join(dataFolder, 'clicks.csv');
-
-// Ensure data directory exists
-if (!fs.existsSync(dataFolder)) {
-  fs.mkdirSync(dataFolder, { recursive: true });
-}
-
-// Initialize CSV files if they don't exist
-export function initCSVFiles() {
-  // Create links.csv if it doesn't exist
-  if (!fs.existsSync(linksFilePath)) {
-    fs.writeFileSync(linksFilePath, 'id,shortCode,originalUrl,createdAt\n');
-  }
-  
-  // Create clicks.csv if it doesn't exist
-  if (!fs.existsSync(clicksFilePath)) {
-    fs.writeFileSync(clicksFilePath, 'id,linkId,timestamp,country,city,browser,os,device,referrer,ip\n');
-  }
-}
-
-// Helper function to parse CSV
+// Helper function to parse CSV (sigue siendo útil para importación/exportación)
 export function parseCSV(csvContent) {
   const lines = csvContent.trim().split('\n');
   const headers = lines[0].split(',');
@@ -51,36 +27,42 @@ export function serializeToCSV(obj, headers) {
   }).join(',');
 }
 
-// Read links from CSV
+// Read links 
 export function readLinks() {
   try {
-    if (!fs.existsSync(linksFilePath)) {
-      return [];
-    }
+    // Para una aplicación real, deberíamos obtener esto de Cloudflare D1 o KV
+    // Esta implementación en memoria es solo para desarrollo
     
-    const csvContent = fs.readFileSync(linksFilePath, 'utf-8');
-    return parseCSV(csvContent);
+    // En producción real sería algo como:
+    // const { results } = await env.DB.prepare('SELECT * FROM links').all();
+    // return results;
+    
+    return inMemoryLinks;
   } catch (error) {
-    console.error('Error reading links from CSV:', error);
+    console.error('Error reading links:', error);
     return [];
   }
 }
 
-// Add a new link to CSV
+// Add a new link
 export function addLink(link) {
   try {
-    const headers = ['id', 'shortCode', 'originalUrl', 'createdAt'];
     const newLink = {
       ...link,
       createdAt: link.createdAt || new Date().toISOString()
     };
     
-    const newRow = serializeToCSV(newLink, headers);
-    fs.appendFileSync(linksFilePath, `${newRow}\n`);
+    // Almacenar en memoria para desarrollo
+    inMemoryLinks.push(newLink);
+    
+    // En producción sería algo como:
+    // await env.DB.prepare(
+    //   'INSERT INTO links (id, shortCode, originalUrl, createdAt) VALUES (?, ?, ?, ?)'
+    // ).bind(newLink.id, newLink.shortCode, newLink.originalUrl, newLink.createdAt).run();
     
     return newLink;
   } catch (error) {
-    console.error('Error adding link to CSV:', error);
+    console.error('Error adding link:', error);
     return null;
   }
 }
@@ -88,8 +70,11 @@ export function addLink(link) {
 // Find a link by short code
 export function findLinkByShortCode(shortCode) {
   try {
-    const links = readLinks();
-    return links.find(link => link.shortCode === shortCode);
+    // Para un entorno de producción:
+    // const link = await env.DB.prepare('SELECT * FROM links WHERE shortCode = ?').bind(shortCode).first();
+    // return link;
+    
+    return inMemoryLinks.find(link => link.shortCode === shortCode);
   } catch (error) {
     console.error('Error finding link by short code:', error);
     return null;
@@ -99,44 +84,50 @@ export function findLinkByShortCode(shortCode) {
 // Find a link by ID
 export function findLinkById(id) {
   try {
-    const links = readLinks();
-    return links.find(link => link.id === id);
+    // Para un entorno de producción:
+    // const link = await env.DB.prepare('SELECT * FROM links WHERE id = ?').bind(id).first();
+    // return link;
+    
+    return inMemoryLinks.find(link => link.id === id);
   } catch (error) {
     console.error('Error finding link by ID:', error);
     return null;
   }
 }
 
-// Read clicks from CSV
+// Read clicks
 export function readClicks() {
   try {
-    if (!fs.existsSync(clicksFilePath)) {
-      return [];
-    }
+    // Para un entorno de producción:
+    // const { results } = await env.DB.prepare('SELECT * FROM clicks').all();
+    // return results;
     
-    const csvContent = fs.readFileSync(clicksFilePath, 'utf-8');
-    return parseCSV(csvContent);
+    return inMemoryClicks;
   } catch (error) {
-    console.error('Error reading clicks from CSV:', error);
+    console.error('Error reading clicks:', error);
     return [];
   }
 }
 
-// Add a new click to CSV
+// Add a new click
 export function addClick(click) {
   try {
-    const headers = ['id', 'linkId', 'timestamp', 'country', 'city', 'browser', 'os', 'device', 'referrer', 'ip'];
     const newClick = {
       ...click,
       timestamp: click.timestamp || new Date().toISOString()
     };
     
-    const newRow = serializeToCSV(newClick, headers);
-    fs.appendFileSync(clicksFilePath, `${newRow}\n`);
+    // Almacenar en memoria para desarrollo
+    inMemoryClicks.push(newClick);
+    
+    // En producción sería algo como:
+    // await env.DB.prepare(
+    //   'INSERT INTO clicks (id, linkId, timestamp, browser, os, device, country, ...) VALUES (?, ?, ?, ?, ?, ?, ?, ...)'
+    // ).bind(newClick.id, newClick.linkId, ...).run();
     
     return newClick;
   } catch (error) {
-    console.error('Error adding click to CSV:', error);
+    console.error('Error adding click:', error);
     return null;
   }
 }
@@ -144,13 +135,22 @@ export function addClick(click) {
 // Get clicks for a specific link
 export function getClicksByLinkId(linkId) {
   try {
-    const clicks = readClicks();
-    return clicks.filter(click => click.linkId === linkId);
+    // Para un entorno de producción:
+    // const { results } = await env.DB.prepare('SELECT * FROM clicks WHERE linkId = ?').bind(linkId).all();
+    // return results;
+    
+    return inMemoryClicks.filter(click => click.linkId === linkId);
   } catch (error) {
     console.error('Error getting clicks by link ID:', error);
     return [];
   }
 }
 
-// Initialize CSV files on module import
-initCSVFiles(); 
+// No es necesario inicializar archivos CSV ya que usamos almacenamiento en memoria o DB
+// Para inicializar datos de demo
+export function initData() {
+  if (inMemoryLinks.length === 0) {
+    // Añadir algunos enlaces de demo si es necesario
+    // inMemoryLinks.push({ id: 'demo1', shortCode: 'demo', originalUrl: 'https://example.com', createdAt: new Date().toISOString() });
+  }
+} 

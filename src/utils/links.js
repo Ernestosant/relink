@@ -6,8 +6,12 @@ import {
   findLinkById, 
   addClick, 
   getClicksByLinkId,
-  readLinks
+  readLinks,
+  initData
 } from './csv.js';
+
+// Inicializar datos en memoria
+initData();
 
 // Create a new short link
 export async function createShortLink(originalUrl, customCode = null) {
